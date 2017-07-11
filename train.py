@@ -31,7 +31,7 @@ model = Seq2Seq(input_length=input_length,
 model.compile(loss=keras.losses.mean_squared_error,
               optimizer=keras.optimizers.rmsprop(),
               metrics=['accuracy'])
-model.fit(x_data, y_data, batch_size=50, epochs=300)
+model.fit(x_data, y_data, batch_size=10, epochs=300)
 model.save_weights('trained_weights')
 
 while True:
