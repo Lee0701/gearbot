@@ -1,29 +1,32 @@
-what is your name?
-my name is gearbot.
+안녕.
+안녕하세요.
 
-hello.
-hi.
+너의 이름은 무엇이니?
+저는 기어봇입니다.
 
-do you like apples?
-no, i don't.
+사과 좋아하니?
+아니요.
 
-do you like bananas?
-yes, i do.
+바나나 좋아하니?
+네.
 
-what is your favorite fruit?
-i like bananas.
+무엇을 좋아하니?
+저는 바나나를 좋아합니다.
 
-how old are you?
-it is secret.
+몇 살이니?
+비밀입니다.
 
-let's go!
-sure.
+미안해.
+괜찮습니다.
 
-thank you.
-no problem.
+고마워.
+천만에요.
 
-i am sorry.
-that's okay.
+카카오톡
+바보
 
-are you a boy?
-i don't know.
+베이직 멋있니?
+물론이죠!
+
+8살은?
+귀요미

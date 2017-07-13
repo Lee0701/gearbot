@@ -1,20 +1,31 @@
+from konlpy.tag import Mecab
 import numpy as np
-from nltk.tokenize import word_tokenize
 
 from one_hot_encode import encode, encode_vals
 
+hn = Mecab()
+
 fill_char = ';'
 unknown_word = 'X'
+
 
 def chunks(l, n):
     n = max(1, n)
     return (l[i:i+n] for i in range(0, len(l), n))
 
+
+def unique(seq):
+    seen = set()
+    seen_add = seen.add
+    return [x for x in seq if not (x in seen or seen_add(x))]
+
+
 def get_key(content):
     updated = []
     for line in content:
-        updated += word_tokenize(line)
-    return [unknown_word, fill_char] + list(set(updated))
+        updated += hn.morphs(line)
+    return [unknown_word, fill_char] + unique(updated)
+
 
 def load_data(path):
     with open(path) as file:
@@ -24,8 +35,8 @@ def load_data(path):
             if line != '\n':
                 line = line.strip()
                 updated.append(line)
-        key = get_key(content)
-        updated = [encode_vals(word_tokenize(line), key) for line in updated]
+        key = get_key(updated)
+        updated = [encode_vals(hn.morphs(line), key) for line in updated]
         max_len = len(max(updated, key=len))
 
         updated2 = []
