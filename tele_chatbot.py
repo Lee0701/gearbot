@@ -1,6 +1,10 @@
 import re
+import operator
 
 import numpy as np
+
+import pickle
+
 from konlpy.tag import Mecab
 
 from seq2seq.models import Seq2Seq
@@ -40,6 +44,8 @@ model = Seq2Seq(input_length=input_length,
                 depth=1)
 model.load_weights('trained_weights')
 
+f = open('cont_ranking.pkl', 'rb')
+ranking = pickle.load(f)
 
 def chat(bot, update, args):
     user = update.message.from_user
@@ -49,7 +55,8 @@ def chat(bot, update, args):
         print(q, end='')
         q_tok = hn.morphs(q)
         q_tok += [';'] * (max_len - len(q_tok))
-        result = model.predict(np.array([encode_vals(q_tok, key)[::-1]]))
+        q_res = np.array([encode_vals(q_tok, key)[::-1]])
+        result = model.predict(q_res)
         dec_result = decode_vals(result[0], key)
         ans = ' '.join(list(filter(lambda w: w != ';', dec_result)))
         print(' => ' + ans)
@@ -74,6 +81,15 @@ def teach(bot, update, args):
     else:
         user = update.message.from_user
         print('Got train data from ' + user.username)
+
+        if user.username in ranking:
+            ranking[user.username] = ranking[user.username] + 1
+        else:
+            ranking[user.username] = 1
+        
+        with open('cont_ranking.pkl', 'wb') as f2:
+            pickle.dump(ranking, f2)
+
         print(qna[0] + ' => ' + qna[1])
         with open('cont_data.txt', 'a') as file:
             file.write(qna[0] + '\n')
@@ -83,10 +99,27 @@ def teach(bot, update, args):
                          reply_to_message_id=update.message.message_id)
 
 
+def rank(bot, update, args):
+    txt = '기여 랭킹입니다.\n'
+
+    sorted_rank = sorted(ranking.items(), key=operator.itemgetter(1))[::-1]
+    
+    i = 1
+    for username, count in sorted_rank:
+        txt += str(i) + '위 ' + username + ': ' + str(count) + '회\n'
+        i = i + 1
+    
+    bot.send_message(chat_id=update.message.chat_id,
+                     text=txt)
+                     
+
+
 chat_handler = CommandHandler('chat', chat, pass_args=True)
 teach_handler = CommandHandler('teach', teach, pass_args=True)
+rank_handler = CommandHandler('rank', rank, pass_args=True)
 dispatcher.add_handler(chat_handler)
 dispatcher.add_handler(teach_handler)
+dispatcher.add_handler(rank_handler)
 
 print('Start pooling')
 updater.start_polling()
