@@ -18,7 +18,12 @@ import logging
 
 hn = Mecab()
 
-updater = Updater(token='380828376:AAGyyC1xPGhRAI2o0EV0sOTtHC-dOAxILys')
+token_file = open('api_token.txt', 'r')
+api_token = token_file.readline().strip()
+print('Bot API Token : ' + api_token)
+updater = Updater(token=api_token)
+token_file.close()
+
 dispatcher = updater.dispatcher
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s'
