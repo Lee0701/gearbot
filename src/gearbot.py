@@ -40,6 +40,25 @@ class Gearbot:
         f = open(path, 'rb')
         self.ranking = pickle.load(f)
 
+    def info(self, bot, update):
+        user = update.message.from_user
+
+        if time.time() - time.mktime(update.message.date.timetuple()) > self.timeout:
+            print('Message from ' + user.username + ' has discarded, TIMEOUT')
+            return
+
+        bot.send_message(chat_id=update.message.chat_id,
+                         text='기어봇 : 베타 0.0.1\n\n'
+                              '기어봇은 머신러닝을 사용한 여러가지 실험적인 기능들을 '
+                              '텔레그램 봇에 적용시켜보는 프로젝트입니다.\n'
+                              '현재는 채팅 기능 밖에 없으며 앞으로 기계 번역 등 '
+                              '여러가지 기능을 추가 할 예정입니다.\n\n'
+                              '깃헙 : https://github.com/g34r/gearbot\n'
+                              '코드는 MIT 라이센스 아래서 자유롭게 사용 가능합니다.\n'
+                              'Star는 개발자에게 힘이 됩니다.(?)\n\n'
+                              '제작(건의) : https://t.me/dev_kr')
+
+
     def chat(self, bot, update, args):
         user = update.message.from_user
 
@@ -117,9 +136,11 @@ class Gearbot:
                          text=txt)
 
     def add_handlers(self):
+        info_handler = CommandHandler('info', self.info)
         chat_handler = CommandHandler('chat', self.chat, pass_args=True)
         teach_handler = CommandHandler('teach', self.teach, pass_args=True)
         rank_handler = CommandHandler('rank', self.rank)
+        self.dispatcher.add_handler(info_handler)
         self.dispatcher.add_handler(chat_handler)
         self.dispatcher.add_handler(teach_handler)
         self.dispatcher.add_handler(rank_handler)
