@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import sys
 sys.path.insert(0, './chatbot')
 
@@ -43,7 +44,8 @@ class Gearbot:
     def info(self, bot, update):
         user = update.message.from_user
 
-        if time.time() - time.mktime(update.message.date.timetuple()) > self.timeout:
+        msg_time = time.mktime(update.message.date.timetuple())
+        if time.time() - msg_time > self.timeout:
             print('Message from ' + user.username + ' has discarded, TIMEOUT')
             return
 
@@ -58,11 +60,11 @@ class Gearbot:
                               'Star는 개발자에게 힘이 됩니다.(?)\n\n'
                               '제작(건의) : https://t.me/dev_kr')
 
-
     def chat(self, bot, update, args):
         user = update.message.from_user
 
-        if time.time() - time.mktime(update.message.date.timetuple()) > self.timeout:
+        msg_time = time.mktime(update.message.date.timetuple())
+        if time.time() - msg_time > self.timeout:
             print('Message from ' + user.username + ' has discarded, TIMEOUT')
             return
 
@@ -84,7 +86,8 @@ class Gearbot:
     def teach(self, bot, update, args):
         user = update.message.from_user
 
-        if time.time() - time.mktime(update.message.date.timetuple()) > self.timeout:
+        msg_time = time.mktime(update.message.date.timetuple())
+        if time.time() - msg_time > self.timeout:
             print('Message from ' + user.username + ' has discarded, TIMEOUT')
             return
 
@@ -119,13 +122,15 @@ class Gearbot:
     def rank(self, bot, update):
         user = update.message.from_user
 
-        if time.time() - time.mktime(update.message.date.timetuple()) > self.timeout:
+        msg_time = time.mktime(update.message.date.timetuple())
+        if time.time() - msg_time > self.timeout:
             print('Message from ' + user.username + ' has discarded, TIMEOUT')
             return
 
         txt = '기여 랭킹입니다.\n'
 
-        sorted_rank = sorted(self.ranking.items(), key=operator.itemgetter(1))[::-1]
+        sorted_rank = sorted(self.ranking.items(),
+                             key=operator.itemgetter(1))[::-1]
 
         i = 1
         for username, count in sorted_rank:

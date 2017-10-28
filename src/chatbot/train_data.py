@@ -36,7 +36,8 @@ def load_data(path):
                 line = line.strip()
                 updated.append(line)
         key = get_key(updated)
-        updated = [encode_vals(hn.morphs(line) + [end_char], key) for line in updated]
+        updated = [encode_vals(hn.morphs(line) + [end_char], key)
+                   for line in updated]
         max_len = len(max(updated, key=len))
 
         updated2 = []

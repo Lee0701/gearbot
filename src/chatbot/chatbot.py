@@ -15,7 +15,8 @@ class Chatbot:
         self.hn = Mecab()
 
     def load_data(self, path):
-        self.questions, self.answers, self.max_len, self.key = train_data.load_data(path)
+        data = train_data.load_data(path)
+        self.questions, self.answers, self.max_len, self.key = data
         # ../traindata/data.txt
 
         self.input_length = self.max_len
@@ -46,13 +47,17 @@ class Chatbot:
         self.model.load_weights(path)
 
     def train_model(self, batch_size, epochs, path):
-        self.model.fit(self.x_data, self.y_data, batch_size=batch_size, epochs=epochs)
+        self.model.fit(self.x_data,
+                       self.y_data,
+                       batch_size=batch_size,
+                       epochs=epochs)
         self.model.save_weights(path)
         # ../traindata/trained_weights
 
     def predict(self, q):
         tokens = self.hn.morphs(q)
         tokens += [';'] * (self.max_len - len(tokens))
-        result = self.model.predict(np.array([encode_vals(tokens, self.key)[::-1]]))
+        input_data = np.array([encode_vals(tokens, self.key)[::-1]])
+        result = self.model.predict(input_data)
         dec_result = decode_vals(result[0], self.key)
         return (' '.join(list(filter(lambda w: w != ';', dec_result))))
