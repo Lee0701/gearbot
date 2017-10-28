@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import sys
 sys.path.insert(0, './chatbot')
+sys.path.insert(0, './anywords')
 
 import logging
 import operator
@@ -12,6 +13,7 @@ from telegram.ext import CommandHandler
 from telegram.ext import Updater
 
 import chatbot
+import anywords
 import spacing
 
 
@@ -36,6 +38,12 @@ class Gearbot:
         self.chatbot.load_data(data_path)
         self.chatbot.build_model()
         self.chatbot.load_weights(weights_path)
+
+    def init_anywords(self, data_path, weights_path):
+        self.anywords = anywords.Anywords()
+        self.anywords.load_data(data_path, 50)
+        self.anywords.build_model()
+        self.anywords.load_weights(weights_path)
 
     def load_ranking(self, path):
         f = open(path, 'rb')
@@ -119,6 +127,28 @@ class Gearbot:
                              text=user.username + "님! 기여해 주셔서 정말 감사합니다.\n",
                              reply_to_message_id=update.message.message_id)
 
+    def anywords_cmd(self, bot, update, args):
+        user = update.message.from_user
+
+        msg_time = time.mktime(update.message.date.timetuple())
+        if time.time() - msg_time > self.timeout:
+            print('Message from ' + user.username + ' has discarded, TIMEOUT')
+            return
+
+        if args:
+            q = args[0][0]
+            print('Got anywords from ' + user.username)
+            print(q, end='')
+            ans = q + self.anywords.predict(q)
+            print(' => ' + ans)
+            bot.send_message(chat_id=update.message.chat_id,
+                             text=ans,
+                             reply_to_message_id=update.message.message_id)
+        else:
+            bot.send_message(chat_id=update.message.chat_id,
+                             text="/anywords <문자> 의 형식으로 기어봇에게 아무말 대잔치를 시켜보세요!",
+                             reply_to_message_id=update.message.message_id)
+
     def rank(self, bot, update):
         user = update.message.from_user
 
@@ -144,10 +174,16 @@ class Gearbot:
         info_handler = CommandHandler('info', self.info)
         chat_handler = CommandHandler('chat', self.chat, pass_args=True)
         teach_handler = CommandHandler('teach', self.teach, pass_args=True)
+
+        anywords_handler = CommandHandler('anywords',
+                                          self.anywords_cmd,
+                                          pass_args=True)
+
         rank_handler = CommandHandler('rank', self.rank)
         self.dispatcher.add_handler(info_handler)
         self.dispatcher.add_handler(chat_handler)
         self.dispatcher.add_handler(teach_handler)
+        self.dispatcher.add_handler(anywords_handler)
         self.dispatcher.add_handler(rank_handler)
 
     def start_pool(self):

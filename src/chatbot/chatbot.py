@@ -1,12 +1,16 @@
 import sys
 sys.path.insert(0, '../')
 
-import keras
+from keras import losses
+from keras import optimizers
+
 import numpy as np
+
 from konlpy.tag import Mecab
+
 from seq2seq.models import Seq2Seq
 
-import train_data
+import chatbot_traindata
 from one_hot_encode import encode_vals, decode_vals
 
 
@@ -15,7 +19,7 @@ class Chatbot:
         self.hn = Mecab()
 
     def load_data(self, path):
-        data = train_data.load_data(path)
+        data = chatbot_traindata.load_data(path)
         self.questions, self.answers, self.max_len, self.key = data
         # ../traindata/data.txt
 
@@ -39,8 +43,8 @@ class Chatbot:
                              depth=1)
 
     def compile_model(self):
-        self.model.compile(loss=keras.losses.mean_squared_error,
-                           optimizer=keras.optimizers.rmsprop(),
+        self.model.compile(loss=losses.mean_squared_error,
+                           optimizer=optimizers.rmsprop(),
                            metrics=['accuracy'])
 
     def load_weights(self, path):
