@@ -51,8 +51,8 @@ class Chatbot:
         self.model.load_weights(path)
 
     def train_model(self, batch_size, epochs, path):
-        self.model.fit(self.x_data,
-                       self.y_data,
+        self.model.fit(np.array(self.x_data),
+                       np.array(self.y_data),
                        batch_size=batch_size,
                        epochs=epochs)
         self.model.save_weights(path)
