@@ -1,6 +1,6 @@
 import gearbot
 
-bot = gearbot.Gearbot('../etc/api_token.txt')
+bot = gearbot.Gearbot('../etc/api_token.txt', '../etc/bot_admin.txt')
 bot.init_chatbot(data_path='./chatbot/traindata/data.txt',
                  weights_path='./chatbot/traindata/trained_weights')
 bot.init_anywords(data_path='./anywords/traindata/data.txt',

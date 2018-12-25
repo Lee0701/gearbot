@@ -18,12 +18,17 @@ import spacing
 
 
 class Gearbot:
-    def __init__(self, path):
-        token_file = open(path, 'r')
+    def __init__(self, token_path, admin_path):
+        token_file = open(token_path, 'r')
         self.api_token = token_file.readline().strip()
         print('Bot API Token : ' + self.api_token)
         self.updater = Updater(token=self.api_token)
         token_file.close()
+
+        admin_file = open(admin_path, 'r')
+        self.bot_admin = admin_file.readline().strip()
+        print('Bot Admin : ' + self.bot_admin)
+        admin_file.close()
 
         self.dispatcher = self.updater.dispatcher
 
@@ -38,6 +43,7 @@ class Gearbot:
         self.chatbot.load_data(data_path)
         self.chatbot.build_model()
         self.chatbot.load_weights(weights_path)
+        self.weights_path = weights_path
 
     def init_anywords(self, data_path, weights_path):
         self.anywords = anywords.Anywords()
@@ -127,6 +133,32 @@ class Gearbot:
                              text=user.username + "님! 기여해 주셔서 정말 감사합니다.\n",
                              reply_to_message_id=update.message.message_id)
 
+    def chatadmin(self, bot, update, args):
+        user = update.message.from_user
+        if(string(user.id) != int(self.bot_admin)):
+            bot.send_message(chat_id=update.message.chat_id,
+                             text='관리자용 명령어입니다!\n',
+                             reply_to_message_id=update.message.message_id)
+        length = len(args)
+        if(length < 1):
+            bot.send_message(chat_id=update.message.chat_id,
+                             text='사용법: /chatadmin train',
+                             reply_to_message_id=update.message.message_id)
+            return
+        if(args[0] == 'train'):
+            if(length < 3):
+                bot.send_message(chat_id=update.message.chat_id,
+                                 text='사용법: /chatadmin train batch_size epochs',
+                                 reply_to_message_id=update.message.message_id)
+                return
+            bot.send_message(chat_id=update.message.chat_id,
+                             text='봇의 학습을 시작합니다.',
+                             reply_to_message_id=update.message.message_id)
+            self.chatbot.load_data()
+            self.chatbot.build_model()
+            self.chatbot.compile_model()
+            self.chatbot.train_model(args[1], args[2], self.weights_path)
+
     def anywords_cmd(self, bot, update, args):
         user = update.message.from_user
 
@@ -174,6 +206,7 @@ class Gearbot:
         info_handler = CommandHandler('info', self.info)
         chat_handler = CommandHandler('chat', self.chat, pass_args=True)
         teach_handler = CommandHandler('teach', self.teach, pass_args=True)
+        chatadmin_handler = CommandHandler('chatadmin', self.chatadmin, pass_args=True)
 
         anywords_handler = CommandHandler('anywords',
                                           self.anywords_cmd,
@@ -183,6 +216,7 @@ class Gearbot:
         self.dispatcher.add_handler(info_handler)
         self.dispatcher.add_handler(chat_handler)
         self.dispatcher.add_handler(teach_handler)
+        self.dispatcher.add_handler(chatadmin_handler)
         self.dispatcher.add_handler(anywords_handler)
         self.dispatcher.add_handler(rank_handler)
 
